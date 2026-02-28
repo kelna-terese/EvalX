@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @page {
+            size: A4;
+            margin: 0; /* Remove default page margins for the banner */
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 10pt;
+            margin: 0;
+            padding: 0;
+        }
+        .banner-container {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .banner-container img {
+            width: 100%; /* Forces image to cover full width */
+            display: block;
+        }
+        .content-wrapper {
+            padding: 1cm; /* Re-introduce margins for the actual data */
+        }
+        .report-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14pt;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            text-decoration: underline;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid black; padding: 5px; text-align: center; }
+        th { background-color: #e9ecef; font-size: 9pt; }
+        .text-left { text-align: left; padding-left: 5px; }
+    </style>
+</head>
+<body>
+    <div class="banner-container">
+        <img src="{{ logo_path }}">
+    </div>
+    <div class="content-wrapper">
+        <div class="report-title">{{ title }}</div>
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

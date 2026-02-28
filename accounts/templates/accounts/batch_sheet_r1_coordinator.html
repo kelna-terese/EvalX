@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Evaluation 1 - Project Coordinator | EvalX</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #fff; padding: 20px; font-family: 'Arial', sans-serif; }
+        .header-section { text-align: center; margin-bottom: 30px; }
+        .table th { 
+            background-color: #000 !important; 
+            color: #fff !important; 
+            border: 1px solid #444 !important;
+            vertical-align: middle;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+        .table td { 
+            border: 1px solid #000 !important; 
+            vertical-align: middle; 
+            padding: 2px !important;
+        }
+        .table-input { 
+            width: 100%; 
+            border: none; 
+            text-align: center; 
+            background: transparent;
+        }
+        .table-input:focus { outline: 2px solid #007bff; background: #fff; }
+        .reg-col { width: 120px; text-align: center; }
+        .name-col { width: 250px; padding-left: 10px !important; }
+        .total-col { background-color: #f2f2f2; font-weight: bold; width: 80px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="header-section">
+        <h5 class="mb-0">Albertian Institute of Science and Technology Kalamassery</h5>
+        <p class="mb-0">Department of Computer Science and Engineering</p>
+        <p class="mb-0">CSD334 Miniproject</p>
+        <h6 class="fw-bold mt-2">Evaluation 1 - Project Coordinator</h6>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Register Number</th>
+                    <th>Name of the Student</th>
+                    <th>Level of Completion (10)</th>
+                    <th>Demonstration of functionality/ specification (10)</th>
+                    <th>Presentation (5)</th>
+                    <th>Oral Examination (10)</th>
+                    <th>Work Knowledge and Involvement (10)</th>
+                    <th>Total (40)</th>
+                    <th>Absent</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in members %}
+                <tr>
+                    <td class="reg-col">{{ m.reg_number }}</td>
+                    <td class="name-col">{{ m.name }}</td>
+                    <td><input type="number" step="0.5" name="comp_{{m.id}}" value="{{m.r1_c_comp}}" class="table-input" max="10"></td>
+                    <td><input type="number" step="0.5" name="func_{{m.id}}" value="{{m.r1_c_func}}" class="table-input" max="10"></td>
+                    <td><input type="number" step="0.5" name="pres_{{m.id}}" value="{{m.r1_c_pres}}" class="table-input" max="5"></td>
+                    <td><input type="number" step="0.5" name="oral_{{m.id}}" value="{{m.r1_c_oral}}" class="table-input" max="10"></td>
+                    <td><input type="number" step="0.5" name="know_{{m.id}}" value="{{m.r1_c_know}}" class="table-input" max="10"></td>
+                    <td class="total-col">{{ m.r1_coord_total }}</td>
+                    <td class="text-center">
+                        <input type="checkbox" name="absent_{{m.id}}" {% if m.r1_c_absent %}checked{% endif %}>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-between mt-4 mb-5">
+            <a href="{% url 'coordinator_dashboard' %}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-dark px-5">Save Evaluation Sheet</button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

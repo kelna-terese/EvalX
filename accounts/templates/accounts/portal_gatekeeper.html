@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EvalX | Project Management Portal</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #333;
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 500;
+            color: #0056b3;
+            letter-spacing: 1px;
+        }
+        .portal-container {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .login-card {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            padding: 25px;
+            text-decoration: none;
+            display: flex;
+            justify-content: center; /* Centered the text */
+            align-items: center;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-radius: 4px;
+        }
+        .login-card:hover {
+            border-color: #0056b3;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: scale(1.02); /* Slight scale up instead of shift */
+            background-color: #f0f7ff;
+        }
+        .login-card h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #444;
+            font-weight: 500;
+        }
+        .footer-text {
+            margin-top: 60px;
+            font-size: 13px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>EvalX:Mini-Project Evaluation System</h1>
+    </div>
+
+    <div class="portal-container">
+        <a href="/login/coordinator/" class="login-card">
+            <h2>Coordinator Login</h2>
+        </a>
+        <a href="/login/hod/" class="login-card">
+            <h2>HOD Login</h2>
+        </a>
+        <a href="/login/guide/" class="login-card">
+            <h2>Guide Login</h2>
+        </a>
+        <a href="/login/team/" class="login-card">
+            <h2>Team Login</h2>
+        </a>
+    </div>
+
+    <div class="footer-text">
+        &copy; 2026 EvalX Academic ERP System
+    </div>
+
+</body>
+</html>

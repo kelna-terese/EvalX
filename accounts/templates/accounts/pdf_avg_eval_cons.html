@@ -1,0 +1,25 @@
+{% extends 'accounts/pdf_template.html' %}
+{% block content %}
+<table>
+    <thead>
+        <tr>
+            <th>Reg No</th>
+            <th>Student Name</th>
+            <th>Review 1 (40)</th>
+            <th>Review 2 (40)</th>
+            <th>Average Evaluation (40)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for m in members %}
+        <tr>
+            <td>{{ m.reg_number }}</td>
+            <td class="text-left">{{ m.name }}</td>
+            <td>{{ m.r1_consolidated_40|floatformat:2 }}</td>
+            <td>{{ m.r2_consolidated_40|floatformat:2 }}</td>
+            <td style="background-color: #eee;"><strong>{{ m.avg_evaluation_40|floatformat:2 }}</strong></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

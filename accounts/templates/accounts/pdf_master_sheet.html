@@ -1,0 +1,73 @@
+{% extends 'accounts/pdf_template.html' %}
+
+{% block content %}
+<style>
+    .master-table {
+        font-size: 9pt;
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .master-table th {
+        background-color: #343a40;
+        color: white;
+        padding: 8px;
+        text-transform: uppercase;
+    }
+    .master-table td {
+        padding: 8px;
+        vertical-align: top;
+    }
+    .member-row {
+        margin-bottom: 2px;
+        border-bottom: 0.5px solid #eee;
+    }
+    .reg-no {
+        font-family: monospace;
+        color: #555;
+    }
+</style>
+
+<table class="master-table">
+    <thead>
+        <tr>
+            <th style="width: 5%;">Sl</th>
+            <th style="width: 10%;">Team ID</th>
+            <th style="width: 35%;">Member Details (Name & Register No.)</th>
+            <th style="width: 20%;">Project Guide</th>
+            <th style="width: 30%;">Approved Project Title</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for team in teams %}
+        <tr>
+            <td style="text-align: center;">{{ forloop.counter }}</td>
+            <td style="text-align: center; font-weight: bold;">{{ team.team_id }}</td>
+            <td>
+                {% for m in team.members.all %}
+                <div class="member-row">
+                    <strong>{{ m.name }}</strong> <br>
+                    <span class="reg-no">{{ m.reg_number }}</span>
+                    {% if m.is_leader %} <small>(Leader)</small>{% endif %}
+                </div>
+                {% endfor %}
+            </td>
+            <td style="text-align: center;">
+                {{ team.guide.get_full_name|default:team.guide.email }}
+            </td>
+            <td class="text-left">
+                {% if team.is_approved %}
+                    {{ team.project_title }}
+                {% else %}
+                    <i style="color: red;">Pending Approval</i>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div style="margin-top: 50px; text-align: right;">
+    <p>__________________________</p>
+    <p style="margin-right: 40px;">Project Coordinator</p>
+</div>
+{% endblock %}

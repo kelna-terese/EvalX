@@ -1,0 +1,29 @@
+{% extends 'accounts/pdf_template.html' %}
+{% block content %}
+<table>
+    <thead>
+        <tr>
+            <th>Reg No</th>
+            <th>Student Name</th>
+            <th>Avg Eval (40)</th>
+            <th>Sheet 2 (15)</th>
+            <th>Report (10)</th>
+            <th>Attendance (10)</th>
+            <th>Total (75)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for m in members %}
+        <tr>
+            <td>{{ m.reg_number }}</td>
+            <td class="text-left">{{ m.name }}</td>
+            <td>{{ m.avg_evaluation_40|floatformat:2 }}</td>
+            <td>{{ m.s2_total|floatformat:1 }}</td>
+            <td>{{ m.consolidated_report_marks|floatformat:2 }}</td>
+            <td>{{ m.attendance_marks|floatformat:1 }}</td>
+            <td style="background-color: #000; color: #fff;"><strong>{{ m.final_internal_75|floatformat:2 }}</strong></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

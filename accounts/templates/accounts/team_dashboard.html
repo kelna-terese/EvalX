@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EVALX | Team Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; background: #f0f2f5; color: #333; }
+        
+        /* Sidebar Styling with Flexbox */
+        .sidebar { 
+            width: 280px; 
+            background: #002b5c; 
+            color: white; 
+            height: 100vh; 
+            position: fixed; 
+            padding: 25px; 
+            box-sizing: border-box; 
+            display: flex;             /* Enables Flexbox */
+            flex-direction: column;    /* Stacks children vertically */
+        }
+        
+        .sidebar h2 { font-size: 22px; margin-bottom: 30px; border-bottom: 1px solid #1a4d80; padding-bottom: 10px; }
+        
+        /* Notifications area takes up available middle space */
+        .notifications-list { flex-grow: 1; overflow-y: auto; }
+        
+        .notif-item { 
+            background: #1a4d80; 
+            padding: 12px; 
+            border-radius: 4px; 
+            margin-bottom: 10px; 
+            font-size: 13px; 
+            border-left: 3px solid #ffc107; 
+        }
+
+        /* Logout Box pinned to the very bottom of Sidebar */
+        .logout-box {
+            margin-top: auto; 
+            border-top: 1px solid #1a4d80;
+            padding-top: 15px;
+        }
+
+        .btn-logout-trigger {
+            background: none;
+            border: none;
+            color: #ff4d4d;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: inherit;
+            padding: 0;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .btn-logout-trigger:hover { color: #ff9999; }
+
+        /* Main Content Styling */
+        .main { margin-left: 280px; padding: 40px; width: 100%; max-width: 900px; }
+        
+        .card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 8px; 
+            margin-bottom: 25px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+        }
+        
+        h3 { color: #002b5c; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+
+        /* Project Title Box */
+        .project-title-box { 
+            margin-top: 15px; 
+            padding: 18px; 
+            background-color: #e7f3ff; 
+            border-left: 5px solid #0056b3; 
+            border-radius: 4px; 
+        }
+
+        .pending-text { color: #888; font-style: italic; font-size: 14px; margin-top: 10px; display: block; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+
+        .upload-section { 
+            background: #f9f9f9; 
+            padding: 15px; 
+            border-radius: 6px; 
+            margin-top: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        
+        .btn-submit { 
+            background: #002b5c; 
+            color: white; 
+            border: none; 
+            padding: 8px 15px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
+    </style>
+</head>
+<body>
+  <div class="sidebar">
+        <h2>EVALX</h2>
+        <p style="color: #a0c4ff; font-size: 14px; margin-bottom: 20px;">Notifications</p>
+        
+        <div class="notifications-list">
+            {% for slot in active_slots %}
+                <div class="notif-item">
+                    <strong>{{ slot.title }}</strong><br>
+                    {% if slot.deadline %}
+                        Due: {{ slot.deadline|date:"d M, Y - H:i" }}
+                    {% elif slot.review_date %}
+                        Review: {{ slot.review_date|date:"d M, Y" }}
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p style="font-size: 12px; color: #6688aa;">No upcoming reviews or deadlines.</p>
+            {% endfor %}
+        </div>
+
+        <div class="logout-box">
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn-logout-trigger">
+                    Logout from Portal
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="card">
+            <h1 style="margin:0;">Welcome, Team {{ team.team_id }}</h1>
+            {% if team.is_approved %}
+                <div class="project-title-box">
+                    <span style="text-transform: uppercase; font-size: 11px; color: #0056b3; font-weight: bold; display: block; margin-bottom: 5px;">Official Project Title</span>
+                    <h2 style="margin: 0; color: #333; font-size: 20px;">{{ team.project_title }}</h2>
+                </div>
+            {% else %}
+                <span class="pending-text">Project Title: Pending approval from Coordinator</span>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h3>Team Details</h3>
+            <table>
+                <tr><th>Name</th><th>Register Number</th></tr>
+                {% for m in members %}
+                <tr>
+                    <td>{{ m.name }} {% if m.is_leader %}(Leader){% endif %}</td>
+                    <td>{{ m.reg_number }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>Allocated Faculty Guide</h3>
+            <p style="font-size: 18px; color: #002b5c; font-weight: bold;">
+                Prof. {{ guide.email }}
+            </p>
+        </div>
+
+        <div class="card">
+            <h3>Document Submissions</h3>
+            {% for slot in active_slots %}
+                {% if slot.deadline %} <div class="upload-section">
+                    <div>
+                        <strong>{{ slot.title }}</strong><br>
+                        <small>Status: 
+                            {% if slot.id in submitted_slots %}
+                                <span style="color: #28a745; font-weight: bold;">Submitted</span>
+                            {% else %}
+                                <span style="color: #fd7e14; font-weight: bold;">Pending</span>
+                            {% endif %}
+                        </small>
+                    </div>
+                    <form method="POST" enctype="multipart/form-data" action="{% url 'upload_document' slot.id %}">
+                        {% csrf_token %}
+                        <input type="file" name="doc_file" required style="font-size: 12px;">
+                        <button type="submit" class="btn-submit">Upload</button>
+                    </form>
+                </div>
+                {% endif %}
+            {% empty %}
+                <p style="color: #999; margin-top: 10px;">No document slots are currently active.</p>
+            {% endfor %}
+        </div>
+    </div>  
+</body>
+</html>

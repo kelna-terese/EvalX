@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EvalX | Register Team</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; padding: 40px 0; }
+        .reg-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 550px; margin: auto; }
+        h2 { color: #0056b3; text-align: center; margin-bottom: 5px; }
+        p.sub-text { text-align: center; color: #666; font-size: 14px; margin-bottom: 25px; }
+        h3 { font-size: 16px; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 25px; }
+        input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .member-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .btn { background: #28a745; color: white; border: none; padding: 15px; width: 100%; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 20px; font-weight: bold; }
+        .note { font-size: 12px; color: #888; margin-top: -5px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="reg-box">
+        <h2>Register your Team</h2>
+        <p class="sub-text">Enter your details to create a project account.</p>
+        
+        <form method="POST">
+            {% csrf_token %}
+            
+            <h3>Login Credentials</h3>
+            <input type="email" name="email" placeholder="Team Email ID" autocomplete="off" required>
+            <input type="password" name="password" placeholder="Set Password" autocomplete="new-password" required>
+
+            <h3>Team Members</h3>
+            <p class="note">Enter details for all members (Max 4). Leave extra slots blank.</p>
+            
+            <div class="member-grid">
+                <input type="text" name="m1_name" placeholder="Member 1 Name" required>
+                <input type="text" name="m1_reg" placeholder="Reg Number" required>
+            </div>
+
+            <div class="member-grid">
+                <input type="text" name="m2_name" placeholder="Member 2 Name">
+                <input type="text" name="m2_reg" placeholder="Reg Number">
+            </div>
+
+            <div class="member-grid">
+                <input type="text" name="m3_name" placeholder="Member 3 Name">
+                <input type="text" name="m3_reg" placeholder="Reg Number">
+            </div>
+
+            <div class="member-grid">
+                <input type="text" name="m4_name" placeholder="Member 4 Name">
+                <input type="text" name="m4_reg" placeholder="Reg Number">
+            </div>
+
+            <h3>Leadership</h3>
+            <label style="font-size: 14px; color: #555;">Designate Team Leader Name:</label>
+            <input type="text" name="leader_name" placeholder="Enter the name of the chosen leader" required>
+
+            <button type="submit" class="btn">Register Team & Save</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,234 @@
+{% load dict_utils %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EvalX | Professional Coordinator Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { 
+            --sidebar-width: 280px; 
+            --albertian-blue: #1a3c5a; 
+            --accent-blue: #3498db; 
+            --sidebar-hover: #244b6d;
+        }
+        
+        body { background-color: #f4f7f6; display: flex; min-height: 100vh; font-family: 'Inter', sans-serif; color: #000; }
+        
+        .sidebar { 
+            width: var(--sidebar-width); background: var(--albertian-blue); color: white; 
+            position: fixed; height: 100vh; overflow-y: auto; z-index: 1000; box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-brand { padding: 20px; font-size: 1.4rem; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; letter-spacing: 1px; }
+        .sidebar-section-title { padding: 20px 20px 5px 20px; font-size: 0.75rem; text-transform: uppercase; color: #adb5bd; letter-spacing: 1.5px; }
+        
+        .nav-link { color: #dee2e6; padding: 12px 25px; text-decoration: none; display: block; transition: 0.3s; border-left: 4px solid transparent; }
+        .nav-link:hover { background: var(--sidebar-hover); color: white; border-left: 4px solid var(--accent-blue); }
+        
+        .deadline-form-sidebar { padding: 15px 20px; background: var(--sidebar-hover); margin: 10px; border-radius: 8px; font-size: 0.85rem; }
+        .deadline-form-sidebar label { margin-bottom: 5px; color: #dee2e6; display: block; }
+        .deadline-form-sidebar .form-control, .deadline-form-sidebar .form-select { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 0.8rem; margin-bottom: 10px; }
+        .deadline-form-sidebar .form-select option { background-color: var(--albertian-blue); color: white; }
+
+        .main-content { margin-left: var(--sidebar-width); flex-grow: 1; padding: 40px; }
+        
+        .section-card { background: white; border-radius: 4px; border: 1px solid #dee2e6; box-shadow: 0 2px 8px rgba(0,0,0,0.05); height: auto; margin-bottom: 0; }
+        .section-header { padding: 12px 20px; border-bottom: 1px solid #dee2e6; font-weight: 700; background: #f8f9fa; color: var(--albertian-blue); text-transform: uppercase; font-size: 0.85rem; }
+        
+        .vertical-list-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid #f1f1f1; color: #000; font-size: 0.9rem; }
+        .vertical-list-item:last-child { border-bottom: none; }
+        .vertical-list-item:hover { background-color: #fcfcfc; }
+        
+        .btn-action { min-width: 110px; font-size: 0.75rem; border-radius: 2px; text-transform: uppercase; font-weight: 600; border-color: var(--albertian-blue); color: var(--albertian-blue); }
+        .btn-action:hover { background-color: var(--albertian-blue); color: white; }
+        
+        .btn-primary { background-color: var(--albertian-blue); border-color: var(--albertian-blue); color: #fff; }
+        
+        .status-badge { font-size: 0.7rem; padding: 5px 8px; border-radius: 3px; font-weight: 600; text-transform: uppercase; display: inline-block; margin-right: 2px; }
+        .badge-link { text-decoration: none; transition: 0.2s; }
+        .badge-link:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-brand">EVALX ERP</div>
+    <div class="sidebar-section-title">Navigation</div>
+    <a href="#" class="nav-link">Dashboard Overview</a>
+    <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">{% csrf_token %}</form>
+    <a href="#" class="nav-link text-danger fw-bold" onclick="document.getElementById('logout-form').submit(); return false;">Logout</a>
+
+    <div class="sidebar-section-title">Document Deadlines</div>
+    <div class="deadline-form-sidebar">
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="set_deadline">
+            <label>Category</label>
+            <select name="slot_type" class="form-select">
+                <option value="PROPOSAL">Project Proposal</option>
+                <option value="ABSTRACT">Abstract</option>
+                <option value="SRS">SRS Document</option>
+                <option value="REPORT">Final Report</option>
+            </select>
+            <label>Submission Date</label>
+            <input type="datetime-local" name="deadline_date" class="form-control" required>
+            <button type="submit" class="btn btn-primary btn-sm w-100">Set Deadline</button>
+        </form>
+    </div>
+
+    <div class="sidebar-section-title">Set Review Date</div>
+    <div class="deadline-form-sidebar">
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="set_deadline">
+            <label>Select Review</label>
+            <select name="slot_type" class="form-select">
+                <option value="REV1">Review 1 Date</option>
+                <option value="REV2">Review 2 Date</option>
+            </select>
+            <label>Review Date</label>
+            <input type="date" name="specific_review_date" class="form-control" required>
+            <button type="submit" class="btn btn-outline-light btn-sm w-100">Update Review Date</button>
+        </form>
+    </div>
+
+    <div class="sidebar-section-title">Remove Deadlines</div>
+    <div class="deadline-form-sidebar">
+        <form method="POST" onsubmit="return confirm('Warning: Deleting a deadline will also remove any student submissions for that category. Proceed?');">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete_deadline">
+            <label>Select Category</label>
+            <select name="slot_type" class="form-select">
+                {% for code, slot in slots_dict.items %}
+                    <option value="{{ code }}">{{ slot.title }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-sm w-100 mt-1" style="border: 1px solid #dc3545; color: #dc3545; background: transparent;">Delete Deadline</button>
+        </form>
+    </div>
+</div>
+
+<div class="main-content">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-4" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="mb-4">
+        <h2 class="fw-light">Welcome, <span class="fw-bold text-primary">Coordinator</span> to EvalX</h2>
+        <p class="text-muted small">Manage academic marksheets and schedules with precision.</p>
+    </div>
+
+    <div class="section-card shadow-sm mb-4">
+        <div class="section-header">TEAM REGISTRY & PROJECT APPROVAL</div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle small">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">TEAM ID</th>
+                        <th>MEMBERS & REG NO</th>
+                        <th>ALLOCATED GUIDE</th>
+                        <th>PROJECT TITLE</th>
+                        <th style="min-width: 320px;">DOCUMENT STATUS</th> 
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for team in teams %}
+                    <tr>
+                        <td class="ps-4 fw-bold">{{ team.team_id }}</td>
+                        <td>
+                            {% for m in team.members.all %}
+                            <div class="fw-bold">{{ m.name }} <span class="text-muted">({{ m.reg_number }})</span></div>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <div class="fw-bold text-primary">{{ team.guide.get_full_name|default:team.guide.email }}</div>
+                        </td>
+                        <td>
+                            {% if team.is_approved %}
+                                <span class="badge border text-dark">{{ team.project_title }}</span>
+                            {% else %}
+                                <form method="POST" class="d-flex">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="approve_title"><input type="hidden" name="team_id" value="{{ team.pk }}">
+                                    <input type="text" name="project_title" class="form-control form-control-sm" placeholder="Approved Title">
+                                    <button type="submit" class="btn btn-primary btn-sm ms-2">Approve</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-1">
+                                {% with team_files=team_submissions_map|get_item:team.team_id %}
+                                    {% for code, label_text in slots_dict.items %}
+                                        {% with slot=slots_dict|get_item:code file_url=team_files|get_item:code %}
+                                            
+                                            {% if file_url %}
+                                                {% with sub=team.submissions.all|dictsort:"submitted_at"|last %}
+                                                    {% if sub.status == "Late" %}
+                                                        <a href="{{ file_url }}" target="_blank" class="badge status-badge badge-link" 
+                                                           style="background-color: #198754; border: 2px solid #dc3545; color: white;">{{ code }}</a>
+                                                    {% else %}
+                                                        <a href="{{ file_url }}" target="_blank" class="badge bg-success status-badge badge-link">{{ code }}</a>
+                                                    {% endif %}
+                                                {% endwith %}
+
+                                            {% elif slot.is_active %}
+                                                {% if slot.deadline < now %}
+                                                    <span class="badge bg-danger status-badge">{{ code }}</span>
+                                                {% else %}
+                                                    <span class="badge status-badge" style="background-color: #fd7e14; color: white;">{{ code }}</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="badge bg-secondary opacity-50 status-badge">{{ code }}</span>
+                                            {% endif %}
+
+                                        {% endwith %}
+                                    {% endfor %}
+                                {% endwith %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+        <div class="col-md-6">
+            <div class="section-card shadow-sm">
+                <div class="section-header">COORDINATOR EVALUATION (BATCH ENTRY)</div>
+                <div class="vertical-list">
+                    <div class="vertical-list-item"><span>Review 1 (E-Sheet 1)</span><a href="{% url 'batch_r1_coordinator' %}" class="btn btn-outline-dark btn-action">ENTER MARKS</a></div>
+                    <div class="vertical-list-item"><span>Review 2 (E-Sheet 1)</span><a href="{% url 'batch_r2_coordinator' %}" class="btn btn-outline-dark btn-action">ENTER MARKS</a></div>
+                    <div class="vertical-list-item"><span>Institutional (E-Sheet 2)</span><a href="{% url 'batch_s2_coordinator' %}" class="btn btn-outline-dark btn-action">ENTER MARKS</a></div>
+                    <div class="vertical-list-item"><span>Report Evaluation</span><a href="{% url 'batch_report_coordinator' %}" class="btn btn-outline-dark btn-action">ENTER MARKS</a></div>
+                    <div class="vertical-list-item"><span>Attendance Record</span><a href="{% url 'batch_attendance_coordinator' %}" class="btn btn-outline-dark btn-action">ENTER MARKS</a></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="section-card shadow-sm">
+                <div class="section-header">CONSOLIDATED ACADEMIC REPORTS</div>
+                <div class="vertical-list">
+                    <div class="vertical-list-item"><span class="fw-bold">Team Details Master</span><div class="btn-group"><a href="{% url 'report_master_sheet_pdf' %}" class="btn btn-sm btn-dark px-3">PDF</a><a href="?export_excel=1" class="btn btn-sm btn-outline-dark">XLS</a></div></div>
+                    <div class="vertical-list-item"><span>Review 1 Consolidated</span><div class="btn-group"><a href="{% url 'report_r1_cons' %}" class="btn btn-sm btn-dark px-3">PDF</a><a href="{% url 'report_r1_cons' %}?format=excel" class="btn btn-sm btn-outline-dark">XLS</a></div></div>
+                    <div class="vertical-list-item"><span>Review 2 Consolidated</span><div class="btn-group"><a href="{% url 'report_r2_cons' %}" class="btn btn-sm btn-dark px-3">PDF</a><a href="{% url 'report_r2_cons' %}?format=excel" class="btn btn-sm btn-outline-dark">XLS</a></div></div>
+                    <div class="vertical-list-item"><span>Average Evaluation (40)</span><div class="btn-group"><a href="{% url 'report_avg_eval' %}" class="btn btn-sm btn-dark px-3">PDF</a><a href="{% url 'report_avg_eval' %}?format=excel" class="btn btn-sm btn-outline-dark">XLS</a></div></div>
+                    <div class="vertical-list-item"><span class="fw-bold text-primary">Final Internal Marks (75)</span><div class="btn-group"><a href="{% url 'report_final_internal' %}" class="btn btn-sm btn-primary px-3">PDF</a><a href="{% url 'report_final_internal' %}?format=excel" class="btn btn-sm btn-outline-primary">XLS</a></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
