@@ -45,4 +45,5 @@ urlpatterns = [
     path('reports/master-sheet-pdf/', views.report_team_master_pdf, name='report_master_sheet_pdf'),
 
     path('export-live-evaluation/', views.export_live_evaluation, name='export_live_evaluation'),
+    path('export/team-details/xlsx/', views.export_team_details_xlsx, name='export_team_details_xlsx'),
 ]

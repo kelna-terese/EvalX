@@ -251,7 +251,12 @@
             <div class="section-card shadow-sm">
                 <div class="section-header">CONSOLIDATED ACADEMIC REPORTS</div>
                 <div class="vertical-list">
-                    <div class="vertical-list-item"><span class="fw-bold">Team Details</span><div class="btn-group"><a href="{% url 'report_master_sheet_pdf' %}" class="btn btn-sm btn-dark px-3">PDF</a><a href="?export_excel=1" class="btn btn-sm btn-outline-dark">XLSX</a></div></div>
+                    <div class="vertical-list-item"><span class="fw-bold">Team Details</span>
+                        <div class="btn-group">
+                            <a href="{% url 'report_master_sheet_pdf' %}" class="btn btn-sm btn-dark px-3">PDF</a>
+                            <a href="{% url 'export_team_details_xlsx' %}" class="btn btn-sm btn-outline-dark">XLSX</a>
+                        </div>
+                    </div>
                     <div class="vertical-list-item"><span>Review 1 Consolidated</span><div class="btn-group"><a href="{% url 'report_r1_cons' %}" class="btn btn-sm btn-dark px-3">PDF</a><a href="{% url 'report_r1_cons' %}?format=excel" class="btn btn-sm btn-outline-dark">XLSX</a></div></div>
                     <div class="vertical-list-item"><span>Review 2 Consolidated</span><div class="btn-group"><a href="{% url 'report_r2_cons' %}" class="btn btn-sm btn-dark px-3">PDF</a><a href="{% url 'report_r2_cons' %}?format=excel" class="btn btn-sm btn-outline-dark">XLSX</a></div></div>
                     <div class="vertical-list-item"><span>Average Evaluation (40)</span><div class="btn-group"><a href="{% url 'report_avg_eval' %}" class="btn btn-sm btn-dark px-3">PDF</a><a href="{% url 'report_avg_eval' %}?format=excel" class="btn btn-sm btn-outline-dark">XLSX</a></div></div>

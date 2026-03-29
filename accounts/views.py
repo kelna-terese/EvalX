@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.http import JsonResponse
 import openpyxl
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -802,3 +803,82 @@ def export_live_evaluation(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
     return HttpResponse("Invalid Request", status=400)
+
+@login_required
+def export_team_details_xlsx(request):
+    if request.user.role not in ['COORDINATOR', 'HOD']:
+        return redirect('portal_gatekeeper')
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = 'attachment; filename="Consolidated_Team_Details.xlsx"'
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Team Details"
+
+    # 1. Define Professional Headers in your preferred order
+    headers = ['Team ID', 'Register Number', 'Student Name', 'Project Guide', 'Project Title']
+    ws.append(headers)
+
+    # Styling for Headers
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="002b5c", end_color="002b5c", fill_type="solid")
+    header_alignment = Alignment(horizontal="center", vertical="center")
+    
+    for cell in ws[1]:
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_alignment
+
+    # 2. Fetch Data
+    teams = Team.objects.all().prefetch_related('members').select_related('guide').order_by('team_id')
+    
+    current_row = 2
+    thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), 
+                         top=Side(style='thin'), bottom=Side(style='thin'))
+
+    for team in teams:
+        members = team.members.all().order_by('-is_leader') # Leader first
+        member_count = members.count()
+        start_row = current_row
+
+        if member_count == 0:
+            continue # Skip teams with no members
+
+        # 3. Add rows for each member
+        for m in members:
+            ws.cell(row=current_row, column=1).value = team.team_id
+            ws.cell(row=current_row, column=2).value = m.reg_number
+            ws.cell(row=current_row, column=3).value = f"{m.name} {'(Leader)' if m.is_leader else ''}"
+            ws.cell(row=current_row, column=4).value = str(team.guide.email) if team.guide else "Not Allocated"
+            ws.cell(row=current_row, column=5).value = team.project_title or "Not Set"
+            
+            # Apply borders to all cells
+            for col in range(1, 6):
+                ws.cell(row=current_row, column=col).border = thin_border
+            
+            current_row += 1
+
+        # 4. Merge Cells for Team ID, Guide, and Title (If more than 1 member)
+        if member_count > 1:
+            end_row = current_row - 1
+            # Merge Team ID (Col A), Guide (Col D), Project Title (Col E)
+            ws.merge_cells(start_row=start_row, start_column=1, end_row=end_row, end_column=1)
+            ws.merge_cells(start_row=start_row, start_column=4, end_row=end_row, end_column=4)
+            ws.merge_cells(start_row=start_row, start_column=5, end_row=end_row, end_column=5)
+
+            # Center the merged content
+            for row_idx in range(start_row, end_row + 1):
+                ws.cell(row=row_idx, column=1).alignment = Alignment(vertical="center", horizontal="center")
+                ws.cell(row=row_idx, column=4).alignment = Alignment(vertical="center", horizontal="left")
+                ws.cell(row=row_idx, column=5).alignment = Alignment(vertical="center", horizontal="left")
+
+    # 5. Auto-fit Columns
+    column_widths = [12, 18, 30, 30, 45] # Fixed starting widths for your layout
+    for i, width in enumerate(column_widths, 1):
+        ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = width
+
+    wb.save(response)
+    return response
