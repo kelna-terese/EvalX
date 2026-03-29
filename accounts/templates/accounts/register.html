@@ -9,9 +9,11 @@
         p.sub-text { text-align: center; color: #666; font-size: 14px; margin-bottom: 25px; }
         h3 { font-size: 16px; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 25px; }
         input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        .member-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .member-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 5px; }
         .btn { background: #28a745; color: white; border: none; padding: 15px; width: 100%; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 20px; font-weight: bold; }
         .note { font-size: 12px; color: #888; margin-top: -5px; margin-bottom: 10px; }
+        .error-msg { color: #dc3545; font-size: 13px; margin-top: -5px; margin-bottom: 10px; display: block; }
+        .pw-hint { font-size: 11px; color: #6c757d; margin-top: -5px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -19,42 +21,86 @@
         <h2>Register your Team</h2>
         <p class="sub-text">Enter your details to create a project account.</p>
         
-        <form method="POST">
+        {% if messages %}
+            {% for message in messages %}
+                <span class="error-msg">{{ message }}</span>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" id="regForm">
             {% csrf_token %}
             
             <h3>Login Credentials</h3>
-            <input type="email" name="email" placeholder="Team Email ID" autocomplete="off" required>
-            <input type="password" name="password" placeholder="Set Password" autocomplete="new-password" required>
+            <input type="email" name="email" placeholder="Team Email ID" required>
+            
+            <input type="password" name="password" id="pw" placeholder="Set Password" required oninput="checkStrength()">
+            <div id="strength-text" class="pw-hint">Hint: Use 8+ characters with numbers & symbols.</div>
+            
+            <input type="password" name="confirm_password" id="cpw" placeholder="Confirm Password" required oninput="validatePassword()">
+            <div id="match-error" class="error-msg" style="display:none;">Passwords do not match!</div>
 
             <h3>Team Members</h3>
-            <p class="note">Enter details for all members (Max 4). Leave extra slots blank.</p>
+            <p class="note">Format: <b>AIK</b> (e.g., AIK23CS066). Leave extra slots blank.</p>
             
             <div class="member-grid">
                 <input type="text" name="m1_name" placeholder="Member 1 Name" required>
-                <input type="text" name="m1_reg" placeholder="Reg Number" required>
+                <input type="text" name="m1_reg" placeholder="AIKXXXXXX" pattern="AIK.*" title="Must start with AIK" required>
             </div>
 
             <div class="member-grid">
                 <input type="text" name="m2_name" placeholder="Member 2 Name">
-                <input type="text" name="m2_reg" placeholder="Reg Number">
+                <input type="text" name="m2_reg" placeholder="AIKXXXXXX" pattern="AIK.*">
             </div>
-
             <div class="member-grid">
                 <input type="text" name="m3_name" placeholder="Member 3 Name">
-                <input type="text" name="m3_reg" placeholder="Reg Number">
+                <input type="text" name="m3_reg" placeholder="AIKXXXXXX" pattern="AIK.*">
             </div>
-
             <div class="member-grid">
                 <input type="text" name="m4_name" placeholder="Member 4 Name">
-                <input type="text" name="m4_reg" placeholder="Reg Number">
+                <input type="text" name="m4_reg" placeholder="AIKXXXXXX" pattern="AIK.*">
             </div>
 
             <h3>Leadership</h3>
             <label style="font-size: 14px; color: #555;">Designate Team Leader Name:</label>
             <input type="text" name="leader_name" placeholder="Enter the name of the chosen leader" required>
 
-            <button type="submit" class="btn">Register Team & Save</button>
+            <button type="submit" class="btn" id="submitBtn">Register Team & Save</button>
         </form>
     </div>
+
+    <script>
+        function validatePassword() {
+            const pw = document.getElementById('pw').value;
+            const cpw = document.getElementById('cpw').value;
+            const error = document.getElementById('match-error');
+            const btn = document.getElementById('submitBtn');
+            
+            if (cpw !== "" && pw !== cpw) {
+                error.style.display = 'block';
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+            } else {
+                error.style.display = 'none';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        }
+
+        function checkStrength() {
+            const pw = document.getElementById('pw').value;
+            const hint = document.getElementById('strength-text');
+            if (pw.length < 6) {
+                hint.innerHTML = "❌ Too short";
+                hint.style.color = "red";
+            } else if (/[A-Z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw)) {
+                hint.innerHTML = "✅ Strong Password";
+                hint.style.color = "green";
+            } else {
+                hint.innerHTML = "⚠️ Medium: Add numbers/symbols/caps";
+                hint.style.color = "orange";
+            }
+            validatePassword();
+        }
+    </script>
 </body>
 </html>

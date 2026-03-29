@@ -1,0 +1,38 @@
+{% extends 'accounts/pdf_template.html' %}
+
+{% block content %}
+<style>
+    .report-table { width: 85% !important; margin: 20px auto; border-collapse: collapse; }
+    th { background-color: #f8f9fa; font-weight: bold; border: 1px solid black; }
+    td { border: 1px solid black; padding: 6px; text-align: center; }
+    .text-left { text-align: left; padding-left: 8px; }
+    .mark-col { font-weight: bold; width: 20%; }
+</style>
+
+<div class="report-table">
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 10%;">Sl. No</th>
+                <th style="width: 25%;">Reg No</th>
+                <th style="width: 45%;">Student Name</th>
+                <th class="mark-col">Report Marks (10)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in members %}
+            <tr>
+                <td>{{ m.sl_no }}</td>
+                <td>{{ m.reg_no }}</td>
+                <td class="text-left">{{ m.name }}</td>
+                <td class="mark-col">{{ m.marks }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div style="margin-top: 30px; text-align: right; font-size: 8pt;">
+    HOD Report Draft | Generated: {{ today|date:"d M Y, h:i A" }}
+</div>
+{% endblock %}

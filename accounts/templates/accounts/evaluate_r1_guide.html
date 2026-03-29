@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Review 1 Evaluation - Guide | EvalX</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #fff; padding: 20px; font-family: 'Arial', sans-serif; }
+        .header-section { text-align: center; margin-bottom: 20px; }
+        .header-section h5, .header-section p, .header-section h6 { margin: 0 !important; padding: 1px 0 !important; }
+        .table th { 
+            background-color: #000 !important; color: #fff !important; 
+            border: 1px solid #444 !important; text-align: center; font-size: 0.8rem;
+        }
+        .table td { border: 1px solid #000 !important; vertical-align: middle; padding: 2px !important; }
+        .table-input { width: 100%; border: none; text-align: center; background: transparent; font-weight: bold; }
+        .table-input:focus { outline: 2px solid #007bff; background: #fff; }
+        .table-input:disabled { background-color: #e9ecef; cursor: not-allowed; color: #6c757d; font-weight: normal; }
+        .total-col { background-color: #f2f2f2; font-weight: bold; width: 80px; text-align: center; color: #000 !important; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="header-section">
+        <h5>Albertian Institute of Science and Technology Kalamassery</h5>
+        <p>Department of Computer Science and Engineering</p>
+        <p>CSD334 Miniproject</p>
+        <h6 class="fw-bold mt-2" id="sheet-title">Evaluation 1 - Project Guide Panel</h6>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <table class="table table-sm" id="evaluation-table">
+            <thead>
+                <tr>
+                    <th>Sl. No.</th>
+                    <th>Team</th>
+                    <th>Register Number</th>
+                    <th>Student Name</th>
+                    <th>Completion (10)</th>
+                    <th>Functionality (5)</th>
+                    <th>Presentation (5)</th>
+                    <th>Oral (10)</th>
+                    <th>Knowledge (10)</th>
+                    <th>Total (40)</th>
+                    <th>Absent</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in members %}
+                <tr>
+                    <td class="text-center">{{ forloop.counter }}</td>
+                    <td class="text-center fw-bold">{{ m.team.team_id }}</td>
+                    <td class="text-center">{{ m.reg_number }}</td>
+                    <td class="ps-2">{{ m.name }}</td>
+                    <td><input type="number" step="0.5" name="comp_{{m.id}}" value="{{ m.r1_g_comp|default:'0.0' }}" class="table-input calc-input mark-input" min="0" max="10" {% if m.r1_g_absent %}disabled{% endif %}></td>
+                    <td><input type="number" step="0.5" name="func_{{m.id}}" value="{{ m.r1_g_func|default:'0.0' }}" class="table-input calc-input mark-input" min="0" max="5" {% if m.r1_g_absent %}disabled{% endif %}></td>
+                    <td><input type="number" step="0.5" name="pres_{{m.id}}" value="{{ m.r1_g_pres|default:'0.0' }}" class="table-input calc-input mark-input" min="0" max="5" {% if m.r1_g_absent %}disabled{% endif %}></td>
+                    <td><input type="number" step="0.5" name="oral_{{m.id}}" value="{{ m.r1_g_oral|default:'0.0' }}" class="table-input calc-input mark-input" min="0" max="10" {% if m.r1_g_absent %}disabled{% endif %}></td>
+                    <td><input type="number" step="0.5" name="know_{{m.id}}" value="{{ m.r1_g_know|default:'0.0' }}" class="table-input calc-input mark-input" min="0" max="10" {% if m.r1_g_absent %}disabled{% endif %}></td>
+                    <td class="total-col total-display">{{ m.r1_guide_total|default:'0.0' }}</td>
+                    <td class="text-center">
+                        <input type="checkbox" class="absent-check" name="absent_{{m.id}}" {% if m.r1_g_absent %}checked{% endif %}>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="11" class="text-center p-4">You have no assigned teams to evaluate.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'guide_dashboard' %}" class="btn btn-secondary px-4">Cancel</a>
+            <div class="d-flex gap-2">
+                <button type="button" onclick="exportLiveDraft('pdf')" class="btn btn-danger">Download PDF</button>
+                <button type="button" onclick="exportLiveDraft('excel')" class="btn btn-success">Download XLSX</button>
+                <button type="submit" class="btn btn-dark px-5 shadow">Save Guide Evaluation</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const inputs = row.querySelectorAll('.calc-input');
+            const totalDisplay = row.querySelector('.total-display');
+            const absentCheck = row.querySelector('.absent-check');
+
+            const updateRowTotal = () => {
+                let total = 0;
+                inputs.forEach(i => { total += parseFloat(i.value) || 0; });
+                totalDisplay.innerText = total.toFixed(1);
+            };
+
+            inputs.forEach(input => { input.addEventListener('input', updateRowTotal); });
+
+            if (absentCheck) {
+                absentCheck.addEventListener('change', function() {
+                    if (this.checked) {
+                        inputs.forEach(i => { i.value = "0.0"; i.disabled = true; });
+                        totalDisplay.innerText = "0.0";
+                    } else {
+                        inputs.forEach(i => { i.disabled = false; });
+                        updateRowTotal();
+                    }
+                });
+            }
+        });
+    });
+
+    function exportLiveDraft(format) {
+        const rows = document.querySelectorAll('#evaluation-table tbody tr');
+        let extractedData = [];
+
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if(cells.length > 1) { // Skip empty state row
+                const inputs = row.querySelectorAll('.mark-input');
+                extractedData.push({
+                    "reg_no": cells[2].innerText.trim(),
+                    "name": cells[3].innerText.trim(),
+                    "completion": inputs[0].value || "0.0",
+                    "functionality": inputs[1].value || "0.0",
+                    "presentation": inputs[2].value || "0.0",
+                    "oral": inputs[3].value || "0.0",
+                    "knowledge": inputs[4].value || "0.0",
+                    "total": row.querySelector('.total-display').innerText.trim(),
+                    "absent": row.querySelector('.absent-check').checked ? "Yes" : "No"
+                });
+            }
+        });
+
+        fetch(`/export-live-evaluation/?format=${format}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                "title": document.getElementById('sheet-title').innerText,
+                "type": "review1_guide",
+                "data": extractedData
+            })
+        })
+        .then(response => response.ok ? response.blob() : response.text().then(t => {throw new Error(t)}))
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Review1_Guide_Draft.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        });
+    }
+</script>
+</body>
+</html>

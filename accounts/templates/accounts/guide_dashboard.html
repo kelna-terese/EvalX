@@ -33,6 +33,40 @@
             <p class="text-muted small">Managing Assigned Student Batches</p>
         </div>
 
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="section-card mb-4">
+            <div class="section-header">Review Schedule & Notifications</div>
+            <div class="p-3">
+                {% if scheduled_reviews %}
+                    <div class="row">
+                        {% for slot in scheduled_reviews %}
+                        <div class="col-md-6 mb-2">
+                            <div class="p-2 border rounded bg-light d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="fw-bold d-block">{{ slot.title }}</span>
+                                    <small class="text-muted">Mini-Project Assessment</small>
+                            </div>
+                        <div class="text-end">
+                            <span class="badge bg-primary px-3 py-2">{{ slot.review_date|date:"d M Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted small mb-0 text-center">No reviews have been scheduled by the coordinator yet.</p>
+           {% endif %}
+           </div>
+        </div>
+
         <div class="section-card mb-4">
             <div class="section-header">MY ASSIGNED TEAMS</div>
             <div class="table-responsive">
@@ -41,20 +75,20 @@
                         <tr><th>TEAM ID</th><th>LEADER</th><th>PROJECT TITLE</th><th>MEMBERS</th></tr>
                     </thead>
                     <tbody>
-                       {% for team in teams %}
-    <tr>
-        <td class="fw-bold">{{ team.team_id }}</td>
-        <td>{{ team.leader_name }}</td>
-        <td>{{ team.project_title|default:"Title Not Set" }}</td>
-        <td>
-            <div class="small text-muted">
-                {% for m in team.members.all %}{{ m.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
-            </div>
-        </td>
-    </tr>
-    {% empty %}
-    <tr><td colspan="4" class="text-center">You have no assigned teams.</td></tr>
-    {% endfor %} 
+                        {% for team in teams %}
+                        <tr>
+                            <td class="fw-bold">{{ team.team_id }}</td>
+                            <td>{{ team.leader_name }}</td>
+                            <td>{{ team.project_title|default:"Title Not Set" }}</td>
+                            <td>
+                                <div class="small text-muted">
+                                    {% for m in team.members.all %}{{ m.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center">You have no assigned teams.</td></tr>
+                        {% endfor %} 
                     </tbody>
                 </table>
             </div>
@@ -67,20 +101,20 @@
                     <div class="col-md-4">
                         <div class="card p-3 text-center border-0 shadow-sm">
                             <h6>Evaluation Sheet 1 (Review 1)</h6>
-                            <button class="btn btn-primary btn-sm mt-2">ENTER MARKS</button>
+                            <a href="{% url 'evaluate_r1_guide' %}" class="btn btn-primary btn-sm mt-2">ENTER MARKS</a>
                         </div>
                     </div>
                     <div class="col-md-4">
-                       <div class="card p-3 text-center border-0 shadow-sm">
-                          <h6>Evaluation Sheet 1 (Review 2)</h6>
-                          <button class="btn btn-primary btn-sm mt-2">ENTER MARKS</button>
-                       </div> 
+                        <div class="card p-3 text-center border-0 shadow-sm">
+                            <h6>Evaluation Sheet 1 (Review 2)</h6>
+                            <a href="{% url 'evaluate_r2_guide' %}" class="btn btn-primary btn-sm mt-2">ENTER MARKS</a>
+                        </div> 
                     </div>
                     <div class="col-md-4">
-                       <div class="card p-3 text-center border-0 shadow-sm">
-                          <h6>Report Mark Sheet</h6>
-                          <button class="btn btn-primary btn-sm mt-2">ENTER MARKS</button>
-                       </div> 
+                        <div class="card p-3 text-center border-0 shadow-sm">
+                            <h6>Report Mark Sheet</h6>
+                            <a href="{% url 'evaluate_report_guide' %}" class="btn btn-primary btn-sm mt-2">ENTER MARKS</a>
+                        </div> 
                     </div>
                 </div>
             </div>

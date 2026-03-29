@@ -137,4 +137,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER") 
 # This is NOT your login password; it is a 16-character App Password
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+DEFAULT_FROM_EMAIL = f"EvalX System <{EMAIL_HOST_USER}>"
+EMAIL_USE_SSL = False  # Ensure this is False since you are using TLS on port 587
+EMAIL_TIMEOUT = 30
